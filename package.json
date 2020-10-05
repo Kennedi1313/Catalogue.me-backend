@@ -4,10 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "serve -s build",
+    "start": "tsnd --transpile-only --ignore-watch node_modules --respawn src/server.ts",
     "knex:migrate": "knex --knexfile knexfile.ts migrate:latest",
-    "knex:migrate:rollback": "knex --knexfile knexfile.ts migrate:rollback",
-    "heroku-postbuild": "npm run build"
+    "knex:migrate:rollback": "knex --knexfile knexfile.ts migrate:rollback"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^8.5.0",
