@@ -1,7 +1,8 @@
 import {Request, Response} from 'express';
-import db from '../database/connection';
+import db from '../database';
 import crypto from 'crypto'
 import convertHourToMinutes from '../utils/convertHoursToMinutes';
+import knex from 'knex';
 
 interface ScheduleItem {
     week_day: number;
@@ -44,7 +45,7 @@ export default class ShopsController {
     }
 
     async create(request: Request, response: Response) {
-        const trx = await db.transaction();
+        const trx = await db.transaction()
     
         const {
             user_name,
@@ -57,34 +58,37 @@ export default class ShopsController {
             schedule_JSON,
         } = request.body;
 
-        const schedule = JSON.parse(schedule_JSON)
-        
-        var shop_avatar = ''
-        if(request.file){
-            shop_avatar = request.file.path
-        }
+        var schedule = []
+        if(schedule_JSON)
+            schedule = JSON.parse(schedule_JSON)
 
-        const user_passwd_encrypted = criptografar(user_passwd);
+        var shop_avatar = ''
+        if(request.file)
+            shop_avatar = request.file.path
     
+        const user_passwd_encrypted = criptografar(user_passwd);
+
         try {
-            const insertedUsersIds = await trx('users').insert({
+            const user_ids_cadastrados = await trx('users').insert({
                 name: user_name, 
                 whatsapp: user_whatsapp, 
                 email: user_email, 
                 passwd: user_passwd_encrypted
-            })
+            }, "id")
 
-            const user_id = insertedUsersIds[0];
+            const user_id = user_ids_cadastrados[0]
 
-            const insertedShopsIds = await trx('shops').insert({
+            const shop_ids_cadastrados = await trx('shops').insert({
                 name: shop_name, 
                 whatsapp: shop_whatsapp, 
                 avatar: shop_avatar, 
                 bio: shop_bio,
                 user_id
-            })
+            }, "id")
 
-            const shop_id = insertedShopsIds[0]
+            const shop_id = shop_ids_cadastrados[0]
+
+            console.log(shop_id)
 
             if(schedule) {
                 const itemSchedule = schedule.map((scheduleItem: ScheduleItem) => {

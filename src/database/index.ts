@@ -1,5 +1,7 @@
+import knex from 'knex'
 
-module.exports = {
+
+const db = knex({
     client: "pg",
     connection: {
         database: "catalogueme",
@@ -10,4 +12,6 @@ module.exports = {
         tableName: "knex_migrations",
         directory: `${__dirname}/src/database/migrations`
     }
-};
+});
+
+export default db;
