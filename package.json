@@ -8,10 +8,9 @@
     "yarn": "1.x"
   },
   "scripts": {
-    "start": "ts-node --transpile-only src/server.ts",
+    "start": "ts-node src/server.ts",
     "knex:migrate": "knex --knexfile knexfile.ts migrate:latest",
-    "knex:migrate:rollback": "knex --knexfile knexfile.ts migrate:rollback",
-    "build": "tsc"
+    "knex:migrate:rollback": "knex --knexfile knexfile.ts migrate:rollback"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^8.5.0",
