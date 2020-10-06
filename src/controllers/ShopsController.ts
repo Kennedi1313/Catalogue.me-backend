@@ -58,8 +58,11 @@ export default class ShopsController {
         } = request.body;
 
         const schedule = JSON.parse(schedule_JSON)
-
-        const shop_avatar = request.file.path
+        
+        var shop_avatar = ''
+        if(request.file){
+            shop_avatar = request.file.path
+        }
 
         const user_passwd_encrypted = criptografar(user_passwd);
     
