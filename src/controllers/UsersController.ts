@@ -5,8 +5,9 @@ import jwt from 'jsonwebtoken'
 
 export default class UsersController {
     async login(request: Request, response: Response) {
-
+        const trx = await db.transaction();
         function criptografar(tobeEncrypted: string) {
+
             const secret = '1134';
             const key = crypto.createHash('sha256').update(String(secret)).digest('base64').substr(0, 32);
             const iv = crypto.createHash('sha256').update(String(secret)).digest('base64').substr(0, 16);
@@ -25,7 +26,7 @@ export default class UsersController {
         try {
 
             const user_passwd_decrypted = criptografar(user_passwd);
-            const user = await db('users')
+            const user = await trx('users')
                 .where('users.email', '=', user_email)
                 .andWhere('users.passwd', '=', user_passwd_decrypted)
                 .join('shops', 'shops.user_id' , '=', 'users.id')
@@ -43,7 +44,8 @@ export default class UsersController {
                 {
                     expiresIn: "1h"
                 } );
-
+                
+            trx.commit();
             return response.status(201).send({
                 user: user[0], 
                 token: token,
@@ -51,6 +53,7 @@ export default class UsersController {
             })
             
         } catch (err) {
+            trx.rollback()
             return response.status(400).json({
                 error: "Error on authentication.",
                 trace: err
