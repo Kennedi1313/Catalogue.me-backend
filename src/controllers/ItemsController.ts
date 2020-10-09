@@ -1,5 +1,4 @@
 import {Request, Response} from 'express';
-import Knex from 'knex';
 import db from '../database/index';
 import convertHourToMinutes from '../utils/convertHoursToMinutes';
 
