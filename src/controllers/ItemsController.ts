@@ -134,6 +134,7 @@ export default class ItemsController {
                 price, 
                 avatar,
                 info,
+                ativo: true,
                 category,
                 shop_id: shop_id
             });
