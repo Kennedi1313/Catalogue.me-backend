@@ -31,7 +31,6 @@ export default class UsersController {
                 .andWhere('users.passwd', '=', user_passwd_decrypted)
                 .join('shops', 'shops.user_id' , '=', 'users.id')
                 .select(['users.*', 'shops.id as shop_id'])
-            console.log(user)
             if(user.length < 1) {
                 return response.status(401).send({ error: "Falha na autenticação. "})
             }

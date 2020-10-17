@@ -38,9 +38,7 @@ export default class ShopsController {
     async findById(request: Request, response: Response){
         const filters = request.query;
         const shop_id = filters.shop_id as string
-        console.log(filters)
-        const shop = await db('shops').where({id: shop_id}).select('shops.name')
-        console.log(shop)
+        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp')
         return response.send(shop);
     }
 
@@ -87,8 +85,6 @@ export default class ShopsController {
             }, "id")
 
             const shop_id = shop_ids_cadastrados[0]
-
-            console.log(shop_id)
 
             if(schedule) {
                 const itemSchedule = schedule.map((scheduleItem: ScheduleItem) => {

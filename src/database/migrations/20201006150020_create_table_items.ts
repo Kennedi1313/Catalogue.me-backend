@@ -7,6 +7,7 @@ export async function up(knex: Knex) {
         table.decimal('price').notNullable();
         table.string('info').notNullable();
         table.string('category').notNullable();
+        table.boolean('ativo').defaultTo(true).notNullable;
         table.string('avatar');
         table.integer('shop_id').notNullable().references('id').inTable('shops').onDelete('CASCADE');
     });
