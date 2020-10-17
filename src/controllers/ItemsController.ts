@@ -78,7 +78,7 @@ export default class ItemsController {
             .from('items')
             .where('items.shop_id', '=', shop_id)
             .andWhere('items.name', 'ilike', '%' + name + '%')
-            .andWhere('ativo', '=', true)
+            .andWhere('ativo', '=', 0)
             .join('shops', 'items.shop_id', '=', 'shops.id')
         if(category && category !== 'all')
             items = items.where('items.category', category)
@@ -134,7 +134,7 @@ export default class ItemsController {
                 price, 
                 avatar,
                 info,
-                ativo: true,
+                ativo: 1,
                 category,
                 shop_id: shop_id
             });
