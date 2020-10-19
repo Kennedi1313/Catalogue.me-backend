@@ -99,6 +99,39 @@ export default class ItemsController {
         });
     }
 
+    async findInativosByShop(request: Request, response: Response){
+        const filters = request.query;
+        const shop_id = filters.shop_id as string;
+        const name = !!filters.name ? filters.name as string : '';
+        const category = filters.category as string;
+        const price = filters.price as string;
+
+        let items = db.select(['items.*', 'items.category'])
+            .from('items')
+            .where('items.shop_id', '=', shop_id)
+            .andWhere('items.name', 'ilike', '%' + name + '%')
+            .andWhere('ativo', '=', false)
+            .join('shops', 'items.shop_id', '=', 'shops.id')
+        if(category && category !== 'all')
+            items = items.where('items.category', category)
+        if(price)
+            items = items.orderBy('items.price', price)
+
+        var categories: string[] = []
+        items.then(function (result) {
+            result.forEach(element => {
+                categories.push(element.category)
+            })
+            categories = categories.filter(function(este, i) {
+                return categories.indexOf(este) === i;
+            });
+            console.log("pediu")
+            return response.status(200).json({items: result, categories})
+        }).catch(function (err) {
+            return response.status(400).json(err);
+        });
+    }
+
     async findById(request: Request, response: Response){
         const filters = request.query;
         const item_id = filters.item_id as string
@@ -163,6 +196,35 @@ export default class ItemsController {
 
             const updatedItemsIds = await trx('items')
                 .update({ativo: false})
+                .where('items.id','=', item.id);
+
+            console.log(updatedItemsIds)
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            console.log(err)
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while updating a item.",
+                err
+            })
+        }
+    }
+
+    async ativar(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            item,
+        } = request.body;
+
+        try {
+            
+            console.log(item)
+
+            const updatedItemsIds = await trx('items')
+                .update({ativo: true})
                 .where('items.id','=', item.id);
 
             console.log(updatedItemsIds)
