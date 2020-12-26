@@ -15,7 +15,7 @@ const storageTypes = {
         contentType: multerS3.AUTO_CONTENT_TYPE,
         acl: 'public-read',
         key: (req, file, callback) =>{
-            callback(null, file.fieldname + '-' + file.originalname)
+            callback(null, Date.now() + '-' + file.originalname)
         }
     })
     

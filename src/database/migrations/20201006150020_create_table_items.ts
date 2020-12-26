@@ -8,7 +8,6 @@ export async function up(knex: Knex) {
         table.string('info').notNullable();
         table.string('category').notNullable();
         table.boolean('ativo').notNullable();
-        table.string('avatar');
         table.integer('shop_id').notNullable().references('id').inTable('shops').onDelete('CASCADE');
     });
 }

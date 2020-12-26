@@ -16,13 +16,15 @@ routes.post('/shops', uploads.single('shop_avatar'), shopsController.create);
 routes.get('/shops', shopsController.index);
 routes.get('/shopbyid', shopsController.findById);
 
-routes.post('/avatar', uploads.single('avatar'), itemsController.create);
-routes.post('/items', itemsController.delete);
+routes.post('/items', uploads.single('avatar'), itemsController.create);
+routes.post('/itemsDelete', itemsController.delete);
 routes.post('/itemsInative', itemsController.inativar);
 routes.post('/itemsAtive', itemsController.ativar)
 routes.get('/items', itemsController.findByShop);
 routes.get('/itemsIndisponiveis', itemsController.findInativosByShop)
 routes.get('/itembyid', itemsController.findById);
+routes.get('/itemavatarbyid', itemsController.findAvatarById);
+routes.post('/avatar', uploads.single('avatar'), itemsController.addAvatar);
 
 routes.post('/login', usersController.login);
 routes.get('/schedulebyidshop', scheduleController.findByShop)
