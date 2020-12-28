@@ -95,31 +95,50 @@ export default class ItemsController {
         const name = !!filters.name ? filters.name as string : '';
         const category = filters.category as string;
         const price = filters.price as string;
+        const pagina = filters.page as string;
+        const limite = filters.limit as string;
+        const salto = (parseInt(pagina) - 1) * parseInt(limite);
 
-        console.log([filters])
-        let items = db.select(['items.*', 'items.category', 'items-avatar.avatar'])
+        let items = db.select(['items.*', 'items.category', db.raw('(select "items-avatar".avatar from "items-avatar" where items.id = "items-avatar".item_id limit 1 )')])
             .from('items')
             .where('items.shop_id', '=', shop_id)
             .andWhere('items.name', 'ilike', '%' + name + '%')
             .andWhere('ativo', '=', true)
-            .join('items-avatar', 'items.id', '=', 'items-avatar.item_id')
             .join('shops', 'items.shop_id', '=', 'shops.id')
-            
+            .limit(parseInt(limite))
+            .offset(salto)
         if(category && category !== 'all')
             items = items.where('items.category', category)
-        if(price)
+        if(price && price !== 'all')
             items = items.orderBy('items.price', price)
 
+        
+        
+        const total = await db('items').count('items.id')
+                                .from('items')
+                                    .where('items.shop_id', '=', shop_id)
+                                    .andWhere('items.name', 'ilike', '%' + name + '%')
+                                    .andWhere('ativo', '=', true)
+                                    .join('shops', 'items.shop_id', '=', 'shops.id')
+                                if(category && category !== 'all')
+                                    items = items.where('items.category', category)
+                                if(price)
+                                    items = items.orderBy('items.price', price)
+        console.log(total[0]['count'])
+        var totalItens = total[0]['count']
         var categories: string[] = []
         items.then(function (result) {
             result.forEach(element => {
-                categories.push(element.category)
+                categories.push(element.category);
             })
             categories = categories.filter(function(este, i) {
                 return categories.indexOf(este) === i;
             });
-            console.log(result)
-            return response.status(200).json({items: result, categories})
+            
+            response.status(200);
+            response.setHeader('x-content-length', totalItens.toString());
+            console.log(response.getHeaders())
+            return response.json({items: result, categories})
         }).catch(function (err) {
             return response.status(400).json(err);
         });
@@ -132,12 +151,11 @@ export default class ItemsController {
         const category = filters.category as string;
         const price = filters.price as string;
 
-        let items = db.select(['items.*', 'items.category', 'items-avatar.avatar'])
+        let items = db.select(['items.*', 'items.category', db.raw('(select "items-avatar".avatar from "items-avatar" where items.id = "items-avatar".item_id limit 1 )')])
             .from('items')
             .where('items.shop_id', '=', shop_id)
             .andWhere('items.name', 'ilike', '%' + name + '%')
             .andWhere('ativo', '=', false)
-            .join('items-avatar', 'items.id', '=', 'items-avatar.item_id')
             .join('shops', 'items.shop_id', '=', 'shops.id')
             
         if(category && category !== 'all')
@@ -244,7 +262,12 @@ export default class ItemsController {
             // @ts-ignore
             avatar = request.file.path ? request.file.path : request.file.location;
         }
-
+        console.log(avatar)
+        if(avatar === '') {
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+            })
+        }
         try {
             
             const insertedItemsAvatarIds = await trx('items-avatar').insert({
