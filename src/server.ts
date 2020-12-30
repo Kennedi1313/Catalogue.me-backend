@@ -14,7 +14,7 @@ app.use(
 app.use(cors())
 app.use(express.json());
 app.get('/', function(req, res, next) {
-  if (req.headers.host === 'https://catalogueme.herokuapp.com/') {
+  if (req.headers.host === 'catalogueme.herokuapp.com') {
     res.redirect('http://catalogueme.store', 301);
   } else {
     res.redirect('http://catalogueme.store', 301);
