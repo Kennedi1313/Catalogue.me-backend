@@ -7,6 +7,7 @@ export async function up(knex: Knex) {
         table.string('whatsapp').notNullable();
         table.string('avatar').notNullable();
         table.string('bio').notNullable();
+        table.string('tag').notNullable();
         
         table.integer('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     });

@@ -15,6 +15,7 @@ const scheduleController = new ScheduleController();
 routes.post('/shops', uploads.single('shop_avatar'), shopsController.create);
 routes.get('/shops', shopsController.index);
 routes.get('/shopbyid', shopsController.findById);
+routes.get('/shopbytag', shopsController.findByTag);
 
 routes.post('/items', uploads.single('avatar'), itemsController.create);
 routes.post('/itemsDelete', itemsController.delete);

@@ -38,7 +38,15 @@ export default class ShopsController {
     async findById(request: Request, response: Response){
         const filters = request.query;
         const shop_id = filters.shop_id as string
-        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp')
+        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag')
+        console.log(shop, shop_id)
+        return response.send(shop);
+    }
+
+    async findByTag(request: Request, response: Response){
+        const filters = request.query;
+        const shop_tag = filters.shop_tag as string
+        const shop = await db('shops').where({tag: shop_tag}).select('shops.name', 'shops.whatsapp', 'shops.id')
         return response.send(shop);
     }
 
@@ -76,27 +84,19 @@ export default class ShopsController {
 
             const user_id = user_ids_cadastrados[0]
 
+            let shop_tag = shop_name.normalize("NFD").replace(/[^a-zA-Zs]/g, "");
+            shop_tag = shop_tag.replace(/\s/g, '');
+            console.log(shop_tag)
             const shop_ids_cadastrados = await trx('shops').insert({
                 name: shop_name, 
                 whatsapp: shop_whatsapp, 
                 avatar: shop_avatar, 
                 bio: shop_bio,
+                tag: shop_tag,
                 user_id
             }, "id")
 
             const shop_id = shop_ids_cadastrados[0]
-
-            if(schedule) {
-                const itemSchedule = schedule.map((scheduleItem: ScheduleItem) => {
-                    return {
-                        shop_id,
-                        week_day: scheduleItem.week_day,
-                        from: scheduleItem.from != '' ? convertHourToMinutes(scheduleItem.from) : convertHourToMinutes('00:00'),
-                        to: scheduleItem.to != '' ? convertHourToMinutes(scheduleItem.to) : convertHourToMinutes('23:59'),
-                    };
-                })
-                await trx('schedule').insert(itemSchedule);
-            }
 
             await trx.commit();
             return response.status(201).send()
