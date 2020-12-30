@@ -13,11 +13,11 @@ app.use(
   );
 app.use(cors())
 app.use(express.json());
-app.get('*', function(req, res, next) {
+app.get('/', function(req, res, next) {
   if (req.headers.host === 'https://catalogueme.herokuapp.com/') {
     res.redirect('http://catalogueme.store', 301);
   } else {
-    next();
+    res.redirect('http://catalogueme.store', 301);
   }
 });
 app.use(routes);
