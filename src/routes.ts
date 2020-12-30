@@ -11,10 +11,6 @@ const itemsController = new ItemsController();
 const usersController = new UsersController();
 const scheduleController = new ScheduleController();
 
-routes.get('/', (request, response) => {
-    response.redirect(301, 'http://catalogueme.store')
-})
-
 routes.post('/shops', uploads.single('shop_avatar'), shopsController.create);
 routes.get('/shops', shopsController.index);
 routes.get('/shopbyid', shopsController.findById);
