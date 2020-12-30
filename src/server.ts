@@ -24,4 +24,13 @@ app.get('/', function(request, response, next) {
       next();
   }})
 
+app.get('/', function(request, response, next) {
+  if(request.headers.host =="catalogueme.herokuapp.com") {
+      response.writeHead(301, {'Location':'http://www.catalogueme.store'+ request.url, 'Expires': (new Date).toUTCString()});
+      response.end();
+  }
+  else{
+      next();
+  }})
+
 app.listen(process.env.PORT || 3333);
