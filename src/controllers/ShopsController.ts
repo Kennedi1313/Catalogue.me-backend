@@ -23,15 +23,9 @@ function criptografar(tobeEncrypted: string) {
 
 export default class ShopsController {
     async index(request: Request, response: Response) {
-        const filters = request.query;
-        const shop_id = filters.id as string
         var shops: any;
-
         shops = await db('shops')
-        .where('shops.id', '=', shop_id)
         .select(['shops.*'])
-        
-
         return response.send(shops);
     }
 
