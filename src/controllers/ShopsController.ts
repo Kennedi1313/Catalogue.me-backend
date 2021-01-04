@@ -24,7 +24,7 @@ function criptografar(tobeEncrypted: string) {
 export default class ShopsController {
     async index(request: Request, response: Response) {
         var shops: any;
-        shops = await db('shops')
+        shops = await db('shops').whereNotIn('id', [3, 11])
         .select(['shops.*'])
         return response.send(shops);
     }
