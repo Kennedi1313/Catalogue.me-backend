@@ -27,6 +27,8 @@ routes.get('/itemsIndisponiveis', itemsController.findInativosByShop)
 routes.get('/itembyid', itemsController.findById);
 routes.get('/itemavatarbyid', itemsController.findAvatarById);
 routes.post('/avatar', uploads.single('avatar'), itemsController.addAvatar);
+routes.post('/avatar-delete', itemsController.deleteAvatar);
+routes.post('/avatar-change', itemsController.changeAvatar);
 
 routes.post('/login', usersController.login);
 routes.get('/schedulebyidshop', scheduleController.findByShop)

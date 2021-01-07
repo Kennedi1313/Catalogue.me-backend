@@ -99,7 +99,7 @@ export default class ItemsController {
         const limite = filters.limit as string;
         const salto = (parseInt(pagina) - 1) * parseInt(limite);
 
-        let items = db.select(['items.*', 'items.category', db.raw('(select "items-avatar".avatar from "items-avatar" where items.id = "items-avatar".item_id limit 1 )')])
+        let items = db.select(['items.*', 'items.category'])
             .from('items')
             .where('items.shop_id', '=', shop_id)
             .andWhere('items.name', 'ilike', '%' + name + '%')
@@ -189,7 +189,7 @@ export default class ItemsController {
     async findAvatarById(request: Request, response: Response){
         const filters = request.query;
         const item_id = filters.item_id as string
-        let itemsAvatar = await db.select('items-avatar.avatar')
+        let itemsAvatar = await db.select('items-avatar.*')
         .from('items-avatar')
         .where({item_id})
         return response.status(200).json({itemsAvatar});
@@ -321,6 +321,69 @@ export default class ItemsController {
                 avatar,
                 item_id
             });
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+                err
+            })
+        }
+    }
+
+    async changeAvatar(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            avatar,
+            item_id
+        } = request.body;
+
+        try {
+            
+            await trx('items').where('id', item_id).update({
+                avatar,
+            });
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+                err
+            })
+        }
+    }
+
+    async deleteAvatar(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            id,
+            avatar
+        } = request.body;
+
+        try {
+
+            const s3 = new aws.S3();
+            const url_s3 = "https://upload-catalogueme.s3.amazonaws.com/";
+            const url_s32 = "https://upload-catalogueme.s3.sa-east-1.amazonaws.com/"
+
+            let key
+            if(avatar.substring(0, url_s3.length) === url_s3)
+                key = avatar.substring(url_s3.length, avatar.length);
+            if(avatar.substring(0, url_s32.length) === url_s32)
+                key = avatar.substring(url_s32.length, avatar.length);
+
+            s3.deleteObject({
+                Bucket: 'upload-catalogueme',
+                Key: key,
+            });
+            console.log(id, avatar)
+            await trx('items-avatar').where('id', id).delete();
 
             await trx.commit();
             return response.status(201).send();
