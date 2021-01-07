@@ -12,11 +12,13 @@ const usersController = new UsersController();
 const scheduleController = new ScheduleController();
 
 routes.post('/shops', uploads.single('shop_avatar'), shopsController.create);
+routes.post('/shops-edit', uploads.single('shop_avatar'), shopsController.edit);
 routes.get('/shops', shopsController.index);
 routes.get('/shopbyid', shopsController.findById);
 routes.get('/shopbytag', shopsController.findByTag);
 
 routes.post('/items', uploads.single('avatar'), itemsController.create);
+routes.post('/items-edit', uploads.single('avatar'), itemsController.edit);
 routes.post('/itemsDelete', itemsController.delete);
 routes.post('/itemsInative', itemsController.inativar);
 routes.post('/itemsAtive', itemsController.ativar)

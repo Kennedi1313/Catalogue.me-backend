@@ -250,6 +250,53 @@ export default class ItemsController {
         }
     }
 
+    async edit(request: Request, response: Response) {
+
+        const trx = await db.transaction();
+    
+        const {
+            item_id,
+            name,
+            price,
+            info,
+            category,
+            user_id
+        } = request.body;
+
+        var avatar = ''
+        if(request.file){ 
+            // @ts-ignore
+            avatar = request.file.path ? request.file.path : request.file.location;
+        }
+
+        const shops = await trx('shops')
+            .where('shops.user_id', '=', user_id)
+            .select(['shops.id'])
+        
+        const shop_id = shops[0].id
+
+        try {
+
+            await trx('items').where('id', item_id).update({
+                name,
+                price, 
+                info,
+                ativo: true,
+                category,
+                shop_id: shop_id
+            });
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating a new item.",
+                err
+            })
+        }
+    }
+
     async addAvatar(request: Request, response: Response) {
         const trx = await db.transaction();
     

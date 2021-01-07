@@ -32,7 +32,7 @@ export default class ShopsController {
     async findById(request: Request, response: Response){
         const filters = request.query;
         const shop_id = filters.shop_id as string
-        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag')
+        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag', 'shops.bio')
         console.log(shop, shop_id)
         return response.send(shop);
     }
@@ -91,6 +91,46 @@ export default class ShopsController {
             }, "id")
 
             const shop_id = shop_ids_cadastrados[0]
+
+            await trx.commit();
+            return response.status(201).send()
+    
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating a new user or a new shop.",
+                trace: err
+            })
+        }
+    }
+    async edit(request: Request, response: Response) {
+        const trx = await db.transaction()
+        console.log(request.body)
+        const {
+            shop_id,
+            shop_name,
+            shop_whatsapp,
+            shop_bio,
+        } = request.body;
+
+        
+
+        var shop_avatar = ''
+        if(request.file)
+            shop_avatar = request.file.path
+
+        try {
+
+            let shop_tag = shop_name.normalize("NFD").replace(/[^a-zA-Zs]/g, "");
+            shop_tag = shop_tag.replace(/\s/g, '');
+
+            await trx('shops').where('id', shop_id).update({
+                name: shop_name, 
+                whatsapp: shop_whatsapp, 
+                avatar: shop_avatar, 
+                bio: shop_bio,
+                tag: shop_tag,
+            })
 
             await trx.commit();
             return response.status(201).send()
