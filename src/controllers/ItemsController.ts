@@ -227,6 +227,7 @@ export default class ItemsController {
                 info,
                 ativo: true,
                 category,
+                avatar,
                 shop_id: shop_id
             }, "id");
 
