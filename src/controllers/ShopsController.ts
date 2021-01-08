@@ -32,7 +32,7 @@ export default class ShopsController {
     async findById(request: Request, response: Response){
         const filters = request.query;
         const shop_id = filters.shop_id as string
-        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag', 'shops.bio')
+        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag', 'shops.bio', 'shops.logo')
         console.log(shop, shop_id)
         return response.send(shop);
     }
@@ -40,7 +40,7 @@ export default class ShopsController {
     async findByTag(request: Request, response: Response){
         const filters = request.query;
         const shop_tag = filters.shop_tag as string
-        const shop = await db('shops').where({tag: shop_tag}).select('shops.name', 'shops.whatsapp', 'shops.id')
+        const shop = await db('shops').where({tag: shop_tag}).select('shops.name', 'shops.whatsapp', 'shops.id', 'shops.bio', 'shops.logo')
         return response.send(shop);
     }
 
@@ -113,8 +113,6 @@ export default class ShopsController {
             shop_bio,
         } = request.body;
 
-        
-
         var shop_avatar = ''
         if(request.file)
             shop_avatar = request.file.path
@@ -127,7 +125,7 @@ export default class ShopsController {
             await trx('shops').where('id', shop_id).update({
                 name: shop_name, 
                 whatsapp: shop_whatsapp, 
-                avatar: shop_avatar, 
+                logo: shop_avatar, 
                 bio: shop_bio,
                 tag: shop_tag,
             })
@@ -136,10 +134,47 @@ export default class ShopsController {
             return response.status(201).send()
     
         } catch (err) {
+            console.log(err)
             await trx.rollback();
             return response.status(400).json({
                 error: "Unexpected error while creating a new user or a new shop.",
                 trace: err
+                
+            })
+        }
+    }
+
+    async addLogo(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            shop_id
+        } = request.body;
+
+        var logo = ''
+        if(request.file){ 
+            // @ts-ignore
+            logo = request.file.path ? request.file.path : request.file.location;
+        }
+
+        if(logo === '') {
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+            })
+        }
+        try {
+            
+            await trx('shops').where('id', shop_id).update({
+                logo
+            });
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+                err
             })
         }
     }
