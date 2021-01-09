@@ -84,8 +84,8 @@ export default class ShopsController {
             const shop_ids_cadastrados = await trx('shops').insert({
                 name: shop_name, 
                 whatsapp: shop_whatsapp, 
-                avatar: shop_avatar, 
                 bio: shop_bio,
+                logo: shop_avatar,
                 tag: shop_tag,
                 user_id
             }, "id")
