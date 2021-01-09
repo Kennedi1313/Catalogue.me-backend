@@ -17,6 +17,7 @@ routes.get('/shops', shopsController.index);
 routes.get('/shopbyid', shopsController.findById);
 routes.get('/shopbytag', shopsController.findByTag);
 routes.post('/logo', uploads.single('logo'), shopsController.addLogo);
+routes.post('/color', shopsController.addColor);
 
 routes.post('/items', uploads.single('avatar'), itemsController.create);
 routes.post('/items-edit', itemsController.edit);

@@ -32,7 +32,7 @@ export default class ShopsController {
     async findById(request: Request, response: Response){
         const filters = request.query;
         const shop_id = filters.shop_id as string
-        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag', 'shops.bio', 'shops.logo')
+        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag', 'shops.bio', 'shops.logo', 'shops.color')
         console.log(shop, shop_id)
         return response.send(shop);
     }
@@ -40,7 +40,7 @@ export default class ShopsController {
     async findByTag(request: Request, response: Response){
         const filters = request.query;
         const shop_tag = filters.shop_tag as string
-        const shop = await db('shops').where({tag: shop_tag}).select('shops.name', 'shops.whatsapp', 'shops.id', 'shops.bio', 'shops.logo')
+        const shop = await db('shops').where({tag: shop_tag}).select('shops.name', 'shops.whatsapp', 'shops.id', 'shops.bio', 'shops.logo', 'shops.color')
         return response.send(shop);
     }
 
@@ -161,6 +161,31 @@ export default class ShopsController {
             
             await trx('shops').where('id', shop_id).update({
                 logo
+            });
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+                err
+            })
+        }
+    }
+
+    async addColor(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            color,
+            shop_id
+        } = request.body;
+
+        try {
+            
+            await trx('shops').where('id', shop_id).update({
+                color
             });
 
             await trx.commit();
