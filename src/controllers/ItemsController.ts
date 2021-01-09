@@ -264,12 +264,6 @@ export default class ItemsController {
             user_id
         } = request.body;
 
-        var avatar = ''
-        if(request.file){ 
-            // @ts-ignore
-            avatar = request.file.path ? request.file.path : request.file.location;
-        }
-
         const shops = await trx('shops')
             .where('shops.user_id', '=', user_id)
             .select(['shops.id'])

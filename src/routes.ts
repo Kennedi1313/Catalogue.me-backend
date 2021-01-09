@@ -19,7 +19,7 @@ routes.get('/shopbytag', shopsController.findByTag);
 routes.post('/logo', uploads.single('logo'), shopsController.addLogo);
 
 routes.post('/items', uploads.single('avatar'), itemsController.create);
-routes.post('/items-edit', uploads.single('avatar'), itemsController.edit);
+routes.post('/items-edit', itemsController.edit);
 routes.post('/itemsDelete', itemsController.delete);
 routes.post('/itemsInative', itemsController.inativar);
 routes.post('/itemsAtive', itemsController.ativar)

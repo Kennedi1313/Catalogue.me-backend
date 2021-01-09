@@ -113,10 +113,6 @@ export default class ShopsController {
             shop_bio,
         } = request.body;
 
-        var shop_avatar = ''
-        if(request.file)
-            shop_avatar = request.file.path
-
         try {
 
             let shop_tag = shop_name.normalize("NFD").replace(/[^a-zA-Zs]/g, "");
@@ -125,7 +121,6 @@ export default class ShopsController {
             await trx('shops').where('id', shop_id).update({
                 name: shop_name, 
                 whatsapp: shop_whatsapp, 
-                logo: shop_avatar, 
                 bio: shop_bio,
                 tag: shop_tag,
             })
