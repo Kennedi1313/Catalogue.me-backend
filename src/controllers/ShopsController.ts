@@ -32,7 +32,7 @@ export default class ShopsController {
     async findById(request: Request, response: Response){
         const filters = request.query;
         const shop_id = filters.shop_id as string
-        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag', 'shops.bio', 'shops.logo', 'shops.color')
+        const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag', 'shops.bio', 'shops.logo', 'shops.color', 'shops.color_text')
         console.log(shop, shop_id)
         return response.send(shop);
     }
@@ -40,7 +40,7 @@ export default class ShopsController {
     async findByTag(request: Request, response: Response){
         const filters = request.query;
         const shop_tag = filters.shop_tag as string
-        const shop = await db('shops').where({tag: shop_tag}).select('shops.name', 'shops.whatsapp', 'shops.id', 'shops.bio', 'shops.logo', 'shops.color')
+        const shop = await db('shops').where({tag: shop_tag}).select('shops.name', 'shops.whatsapp', 'shops.id', 'shops.bio', 'shops.logo', 'shops.color', 'shops.color_text')
         return response.send(shop);
     }
 
@@ -80,7 +80,7 @@ export default class ShopsController {
 
             let shop_tag = shop_name.normalize("NFD").replace(/[^a-zA-Zs]/g, "");
             shop_tag = shop_tag.replace(/\s/g, '');
-            console.log(shop_tag)
+
             const shop_ids_cadastrados = await trx('shops').insert({
                 name: shop_name, 
                 whatsapp: shop_whatsapp, 
@@ -91,6 +91,16 @@ export default class ShopsController {
             }, "id")
 
             const shop_id = shop_ids_cadastrados[0]
+
+            const id1 = await trx('shops-categories').insert({
+                category: 'Produto',
+                shop_id
+            }, "id");
+
+            const id2 = await trx('shops-categories').insert({
+                category: 'Serviço',
+                shop_id
+            }, "id");
 
             await trx.commit();
             return response.status(201).send()
@@ -197,5 +207,93 @@ export default class ShopsController {
                 err
             })
         }
+    }
+
+    async addColorText(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            color_text,
+            shop_id
+        } = request.body;
+
+        try {
+            
+            await trx('shops').where('id', shop_id).update({
+                color_text
+            });
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+                err
+            })
+        }
+    }
+    
+    async addCategory(request: Request, response: Response) {
+        const trx = await db.transaction();
+        console.log(request.body)
+        const {
+            category,
+            shop_id
+        } = request.body;
+
+        console.log(category, shop_id)
+
+        try {
+            
+            const id = await trx('shops-categories').insert({
+                category,
+                shop_id
+            }, "id");
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            console.log(err)
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+                err
+            })
+        }
+    }
+
+    async deleteCategory(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            category,
+            shop_id
+        } = request.body;
+        console.log(category, shop_id)
+        try {
+            
+            await trx('shops-categories')
+            .delete()
+            .where('shops-categories.category', category)
+            .andWhere('shops-categories.shop_id', shop_id);
+
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            console.log(err)
+            return response.status(400).json({
+                error: "Unexpected error while creating the avatar of a item.",
+                err
+            })
+        }
+    }
+
+    async findCategoryByShop(request: Request, response: Response){
+        const filters = request.query;
+        const shop_id = filters.shop_id as string
+        const categories = await db('shops-categories').where({shop_id}).select('shops-categories.category')
+        return response.send(categories);
     }
 }

@@ -16,8 +16,12 @@ routes.post('/shops-edit', uploads.single('shop_avatar'), shopsController.edit);
 routes.get('/shops', shopsController.index);
 routes.get('/shopbyid', shopsController.findById);
 routes.get('/shopbytag', shopsController.findByTag);
+routes.get('/shops-categories', shopsController.findCategoryByShop);
 routes.post('/logo', uploads.single('logo'), shopsController.addLogo);
 routes.post('/color', shopsController.addColor);
+routes.post('/colorText', shopsController.addColorText);
+routes.post('/shops-categories', shopsController.addCategory);
+routes.post('/shops-categories-delete', shopsController.deleteCategory);
 
 routes.post('/items', uploads.single('avatar'), itemsController.create);
 routes.post('/items-edit', itemsController.edit);
@@ -31,6 +35,7 @@ routes.get('/itemavatarbyid', itemsController.findAvatarById);
 routes.post('/avatar', uploads.single('avatar'), itemsController.addAvatar);
 routes.post('/avatar-delete', itemsController.deleteAvatar);
 routes.post('/avatar-change', itemsController.changeAvatar);
+routes.get('/categories', itemsController.findCategoriesByShop);
 
 routes.post('/login', usersController.login);
 routes.get('/schedulebyidshop', scheduleController.findByShop)

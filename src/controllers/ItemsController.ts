@@ -112,20 +112,17 @@ export default class ItemsController {
         if(price && price !== 'all')
             items = items.orderBy('items.price', price)
 
-        
-        
-        const total = await db('items').count('items.id')
+        let total = db.count('items.id')
                                 .from('items')
                                     .where('items.shop_id', '=', shop_id)
                                     .andWhere('items.name', 'ilike', '%' + name + '%')
                                     .andWhere('ativo', '=', true)
                                     .join('shops', 'items.shop_id', '=', 'shops.id')
                                 if(category && category !== 'all')
-                                    items = items.where('items.category', category)
-                                if(price)
-                                    items = items.orderBy('items.price', price)
-        console.log(total[0]['count'])
-        var totalItens = total[0]['count']
+                                    total = total.where('items.category', category)
+
+        var totalItens = (await total)[0]['count']
+        console.log(totalItens)
         var categories: string[] = []
         items.then(function (result) {
             result.forEach(element => {
@@ -137,11 +134,34 @@ export default class ItemsController {
             
             response.status(200);
             response.setHeader('x-content-length', totalItens.toString());
-            console.log(response.getHeaders())
-            return response.json({items: result, categories})
+
+            return response.json({items: result, categories, totalItens})
         }).catch(function (err) {
             return response.status(400).json(err);
         });
+    }
+
+    async findCategoriesByShop(request: Request, response: Response) {
+        const filters = request.query;
+        const shop_id = filters.shop_id as string;
+        let query = db.select('items.category').from('items').where('items.shop_id', '=', shop_id)
+        var categories: string[] = []
+        
+        query.then(function (result) {
+            result.forEach(element => {
+                
+                categories.push(element.category);
+            });
+            
+            categories = categories.filter(function(este, i) {
+                return categories.indexOf(este) === i;
+            });
+            console.log(categories)
+            return response.status(200).send(categories)
+        }).catch(function (err) {
+            return response.status(400).json(err);
+        });
+        
     }
 
     async findInativosByShop(request: Request, response: Response){
@@ -231,8 +251,6 @@ export default class ItemsController {
                 shop_id: shop_id
             }, "id");
 
-            console.log(insertedItemsIds[0])
-
             const insertedItemsAvatarIds = await trx('items-avatar').insert({
                 avatar,
                 item_id: insertedItemsIds[0]
@@ -272,7 +290,9 @@ export default class ItemsController {
 
         try {
 
-            await trx('items').where('id', item_id).update({
+            console.log(name, price, info, category, shop_id, item_id)
+
+            const res = await trx('items').where('id', item_id).update({
                 name,
                 price, 
                 info,
@@ -285,6 +305,7 @@ export default class ItemsController {
             return response.status(201).send();
         } catch (err) {
             await trx.rollback();
+            console.log(err)
             return response.status(400).json({
                 error: "Unexpected error while creating a new item.",
                 err
