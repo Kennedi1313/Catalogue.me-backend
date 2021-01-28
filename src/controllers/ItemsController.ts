@@ -226,13 +226,13 @@ export default class ItemsController {
             category,
             user_id
         } = request.body;
-
+        console.log(request.file)
         var avatar = ''
         if(request.file){ 
             // @ts-ignore
             avatar = request.file.path ? request.file.path : request.file.location;
         }
-
+        console.log(avatar)
         const shops = await trx('shops')
             .where('shops.user_id', '=', user_id)
             .select(['shops.id'])
@@ -289,8 +289,6 @@ export default class ItemsController {
         const shop_id = shops[0].id
 
         try {
-
-            console.log(name, price, info, category, shop_id, item_id)
 
             const res = await trx('items').where('id', item_id).update({
                 name,
