@@ -33,64 +33,6 @@ export default class ItemsController {
     }
     async index(request: Request, response: Response) {
         const filters = request.query;
-
-        const shop_id = filters.shop_id as string;
-        const week_day = filters.week_day as string;
-        const time = filters.time as string;
-        //const type = filters.type as string;
-        var items: any;
-
-        if(week_day && time) {
-            const timeInMinutes = convertHourToMinutes(time);
-            items = await db('items')
-            .whereExists(function() {
-                this.select('schedule.*')
-                .from('schedule')
-                .whereRaw('`schedule`.`item_id` = `items`.`id`')
-                .whereRaw('`schedule`.`week_day` = ??', [Number(week_day)])
-                .whereRaw('`schedule`.`to` > ??', [timeInMinutes])
-                .whereRaw('`schedule`.`from` <= ??', [timeInMinutes])
-            })
-            .where('items.shop_id', '=', shop_id)
-            .join('shops', 'items.shop_id', '=', 'shops.id')
-            .select(['shops.*', 'items.*'])
-        } else if(week_day) {
-            items = await db('items')
-            .whereExists(function() {
-                this.select('schedule.*')
-                .from('schedule')
-                .whereRaw('`schedule`.`item_id` = `items`.`id`')
-                .whereRaw('`schedule`.`week_day` = ??', [Number(week_day)])
-            })
-            .where('items.shop_id', '=', shop_id)
-            .join('shops', 'items.shop_id', '=', 'shops.id')
-            .select(['shops.*', 'items.*'])
-        } else if(time) {
-            const timeInMinutes = convertHourToMinutes(time);
-            items = await db('items')
-            .whereExists(function() {
-                this.select('schedule.*')
-                .from('schedule')
-                .whereRaw('`schedule`.`item_id` = `items`.`id`')
-                .whereRaw('`schedule`.`to` > ??', [timeInMinutes])
-                .whereRaw('`schedule`.`from` <= ??', [timeInMinutes])
-            }) 
-            .where('items.shop_id', '=', shop_id)
-            .join('shops', 'items.shop_id', '=', 'shops.id')
-            .select(['shops.*', 'items.*'])
-        } else {
-            items = await db('items')
-            .where('items.shop_id', '=', shop_id)
-            //.andWhere('items.type', '=', type)
-            .join('shops', 'items.shop_id', '=', 'shops.id')
-            .select(['shops.*', 'items.*'])
-        }
-
-        return response.send(items);
-    }
-
-    async findByShop(request: Request, response: Response){
-        const filters = request.query;
         const shop_id = filters.shop_id as string;
         const name = !!filters.name ? filters.name as string : '';
         const category = filters.category as string;
@@ -103,9 +45,49 @@ export default class ItemsController {
             .from('items')
             .where('items.shop_id', '=', shop_id)
             .andWhere('items.name', 'ilike', '%' + name + '%')
-            .andWhere('ativo', '=', true)
             .join('shops', 'items.shop_id', '=', 'shops.id')
             .limit(parseInt(limite))
+            .offset(salto)
+            .orderBy('items.name', 'asc')
+        if(category && category !== 'all')
+            items = items.where('items.category', category)
+        if(price && price !== 'all')
+            items = items.orderBy('items.price', price)
+
+        var categories: string[] = []
+        items.then(function (result) {
+            result.forEach(element => {
+                categories.push(element.category);
+            })
+            categories = categories.filter(function(este, i) {
+                return categories.indexOf(este) === i;
+            });
+            
+            response.status(200);
+  
+            return response.json({items: result, categories})
+        }).catch(function (err) {
+            return response.status(400).json(err);
+        });
+    }
+
+    async findByShop(request: Request, response: Response){
+        const filters = request.query;
+        const shop_id = filters.shop_id as string;
+        const name = !!filters.name ? filters.name as string : '';
+        const category = filters.category as string;
+        const price = filters.price as string;
+        const pagina = filters.page as string;
+        const limite = filters.limit as string;
+        const salto = (parseInt(pagina) - 1) * parseInt(limite);
+
+        let items = db.select(['items.*'])
+            .from('items')
+            .where('items.shop_id', '=', shop_id)
+            .andWhere('items.name', 'ilike', '%' + name + '%')
+            .join('shops', 'items.shop_id', '=', 'shops.id')
+            .limit(parseInt(limite))
+            .where('items.ativo', true)
             .offset(salto)
         if(category && category !== 'all')
             items = items.where('items.category', category)
@@ -122,20 +104,11 @@ export default class ItemsController {
                                     total = total.where('items.category', category)
 
         var totalItens = (await total)[0]['count']
-        console.log(totalItens)
-        var categories: string[] = []
-        items.then(function (result) {
-            result.forEach(element => {
-                categories.push(element.category);
-            })
-            categories = categories.filter(function(este, i) {
-                return categories.indexOf(este) === i;
-            });
-            
+        items.then(function (result) {            
             response.status(200);
             response.setHeader('x-content-length', totalItens.toString());
 
-            return response.json({items: result, categories, totalItens})
+            return response.json({items: result, totalItens})
         }).catch(function (err) {
             return response.status(400).json(err);
         });
@@ -418,14 +391,21 @@ export default class ItemsController {
         } = request.body;
 
         try {
-            
-            console.log(item)
 
-            const updatedItemsIds = await trx('items')
-                .update({ativo: false})
+            let updatedItemsIds;
+            console.log(item.ativo)
+            if(item.ativo) {
+                updatedItemsIds = await trx('items')
+                    .update({ativo: false})
+                    .where('items.id','=', item.id);
+                console.log("inativou")
+            }else {
+                updatedItemsIds = await trx('items')
+                .update({ativo: true})
                 .where('items.id','=', item.id);
-
-            console.log(updatedItemsIds)
+                console.log("ativou")
+            }
+            
 
             await trx.commit();
             return response.status(201).send();
