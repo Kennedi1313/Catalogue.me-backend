@@ -117,7 +117,7 @@ export default class ItemsController {
     async findCategoriesByShop(request: Request, response: Response) {
         const filters = request.query;
         const shop_id = filters.shop_id as string;
-        let query = db.select('items.category').from('items').where('items.shop_id', '=', shop_id)
+        let query = db.select('items.category').from('items').where('items.shop_id', '=', shop_id).andWhere('items.ativo', '=', true)
         var categories: string[] = []
         
         query.then(function (result) {
