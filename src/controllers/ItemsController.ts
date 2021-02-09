@@ -9,26 +9,25 @@ export default class ItemsController {
         const s3 = new aws.S3();
         const url_s3 = "https://upload-catalogueme.s3.amazonaws.com/";
         const url_s32 = "https://upload-catalogueme.s3.sa-east-1.amazonaws.com/"
-        console.log(avatars)
+
         // @ts-ignore
         avatars.forEach(({avatar}) => {
-            console.log(avatar)
+
             let key
             if(avatar.substring(0, url_s3.length) === url_s3)
                 key = avatar.substring(url_s3.length, avatar.length);
             if(avatar.substring(0, url_s32.length) === url_s32)
                 key = avatar.substring(url_s32.length, avatar.length);
-            console.log(key)
+
             const deletado = s3.deleteObject({
                 Bucket: 'upload-catalogueme',
                 Key: key,
             });
 
-            console.log(deletado);
         });
         
         const itemdeletado = await db('items').delete().where('items.id', item_id)
-        console.log(itemdeletado)
+
         return response.status(200).send();
     }
     async index(request: Request, response: Response) {
@@ -129,7 +128,7 @@ export default class ItemsController {
             categories = categories.filter(function(este, i) {
                 return categories.indexOf(este) === i;
             });
-            console.log(categories)
+          
             return response.status(200).send(categories)
         }).catch(function (err) {
             return response.status(400).json(err);
@@ -199,13 +198,13 @@ export default class ItemsController {
             category,
             user_id
         } = request.body;
-        console.log(request.file)
+       
         var avatar = ''
         if(request.file){ 
             // @ts-ignore
             avatar = request.file.path ? request.file.path : request.file.location;
         }
-        console.log(avatar)
+     
         const shops = await trx('shops')
             .where('shops.user_id', '=', user_id)
             .select(['shops.id'])
@@ -228,8 +227,6 @@ export default class ItemsController {
                 avatar,
                 item_id: insertedItemsIds[0]
             }, "id");
-
-            console.log(insertedItemsAvatarIds)
 
             await trx.commit();
             return response.status(201).send();
@@ -276,7 +273,7 @@ export default class ItemsController {
             return response.status(201).send();
         } catch (err) {
             await trx.rollback();
-            console.log(err)
+          
             return response.status(400).json({
                 error: "Unexpected error while creating a new item.",
                 err
@@ -296,7 +293,7 @@ export default class ItemsController {
             // @ts-ignore
             avatar = request.file.path ? request.file.path : request.file.location;
         }
-        console.log(avatar)
+      
         if(avatar === '') {
             return response.status(400).json({
                 error: "Unexpected error while creating the avatar of a item.",
@@ -369,7 +366,7 @@ export default class ItemsController {
                 Bucket: 'upload-catalogueme',
                 Key: key,
             });
-            console.log(id, avatar)
+           
             await trx('items-avatar').where('id', id).delete();
 
             await trx.commit();
@@ -393,24 +390,24 @@ export default class ItemsController {
         try {
 
             let updatedItemsIds;
-            console.log(item.ativo)
+          
             if(item.ativo) {
                 updatedItemsIds = await trx('items')
                     .update({ativo: false})
                     .where('items.id','=', item.id);
-                console.log("inativou")
+               
             }else {
                 updatedItemsIds = await trx('items')
                 .update({ativo: true})
                 .where('items.id','=', item.id);
-                console.log("ativou")
+               
             }
             
 
             await trx.commit();
             return response.status(201).send();
         } catch (err) {
-            console.log(err)
+    
             await trx.rollback();
             return response.status(400).json({
                 error: "Unexpected error while updating a item.",
@@ -427,19 +424,14 @@ export default class ItemsController {
         } = request.body;
 
         try {
-            
-            console.log(item)
 
             const updatedItemsIds = await trx('items')
                 .update({ativo: true})
                 .where('items.id','=', item.id);
 
-            console.log(updatedItemsIds)
-
             await trx.commit();
             return response.status(201).send();
         } catch (err) {
-            console.log(err)
             await trx.rollback();
             return response.status(400).json({
                 error: "Unexpected error while updating a item.",
