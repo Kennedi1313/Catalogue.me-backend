@@ -37,6 +37,7 @@ routes.post('/avatar', uploads.single('avatar'), itemsController.addAvatar);
 routes.post('/avatar-delete', itemsController.deleteAvatar);
 routes.post('/avatar-change', itemsController.changeAvatar);
 routes.get('/categories', itemsController.findCategoriesByShop);
+routes.get('/getOptionsById', itemsController.findOptionsById);
 
 routes.post('/login', usersController.login);
 routes.get('/schedulebyidshop', scheduleController.findByShop)

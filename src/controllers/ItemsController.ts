@@ -196,8 +196,15 @@ export default class ItemsController {
             price,
             info,
             category,
-            user_id
+            user_id,
+            options
         } = request.body;
+
+        const optionsArray = JSON.parse(options);
+
+        console.log(options)
+
+        console.log(optionsArray)
        
         var avatar = ''
         if(request.file){ 
@@ -213,7 +220,7 @@ export default class ItemsController {
 
         try {
 
-            const insertedItemsIds = await trx('items').insert({
+            const insertedItemsIds = await trx('items').insert([{
                 name,
                 price, 
                 info,
@@ -221,13 +228,21 @@ export default class ItemsController {
                 category,
                 avatar,
                 shop_id: shop_id
-            }, "id");
+            }], "id");
 
-            const insertedItemsAvatarIds = await trx('items-avatar').insert({
+            const insertedItemsAvatarIds = await trx('items-avatar').insert([{
                 avatar,
                 item_id: insertedItemsIds[0]
-            }, "id");
+            }], "id");
 
+            const optionsFields = optionsArray.map( ({label}: { label: string}) => {
+                if(label !== '') {
+                    return { label: label, item_id: insertedItemsIds[0] } 
+                }
+            })
+
+            const insertedItemOptions = await trx('items-options').insert(optionsFields, "id");
+           
             await trx.commit();
             return response.status(201).send();
         } catch (err) {
@@ -438,5 +453,17 @@ export default class ItemsController {
                 err
             })
         }
+    }
+
+    async findOptionsById(request: Request, response: Response) {
+        const filters = request.query;
+        const item_id = filters.item_id as string
+        let itemsOptions = await db.select('items-options.*')
+        .from('items-options')
+        .where({item_id})
+        console.log(item_id)
+        console.log(itemsOptions)
+        return response.status(200).json({itemsOptions});
+
     }
 }
