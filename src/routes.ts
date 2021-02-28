@@ -38,6 +38,8 @@ routes.post('/avatar-delete', itemsController.deleteAvatar);
 routes.post('/avatar-change', itemsController.changeAvatar);
 routes.get('/categories', itemsController.findCategoriesByShop);
 routes.get('/getOptionsById', itemsController.findOptionsById);
+routes.post('/add-item-option', itemsController.addItemOption);
+routes.post('/delete-item-option', itemsController.deleteItemOption);
 
 routes.post('/login', usersController.login);
 routes.get('/schedulebyidshop', scheduleController.findByShop)

@@ -466,4 +466,57 @@ export default class ItemsController {
         return response.status(200).json({itemsOptions});
 
     }
+    
+    async addItemOption(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            item_id,
+            options_label
+        } = request.body;
+
+        const optionsFields =  { label: options_label, item_id: item_id } 
+
+        try {
+            const insertedItemOptions = await trx('items-options').insert(optionsFields, "id");
+        
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating a new item.",
+                err
+            })
+        }
+    }
+
+    async deleteItemOption(request: Request, response: Response) {
+        const trx = await db.transaction();
+    
+        const {
+            item_id,
+            options_label
+        } = request.body;
+
+        console.log(item_id, options_label)
+
+        try {
+            const insertedItemOptions = await trx('items-options')
+                .delete()    
+                .where('item_id', item_id)
+                .andWhere('label', options_label)
+
+            console.log("deletou")
+        
+            await trx.commit();
+            return response.status(201).send();
+        } catch (err) {
+            await trx.rollback();
+            return response.status(400).json({
+                error: "Unexpected error while creating a new item.",
+                err
+            })
+        }
+    }
 }
