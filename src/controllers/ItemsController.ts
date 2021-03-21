@@ -201,10 +201,6 @@ export default class ItemsController {
         } = request.body;
 
         const optionsArray = JSON.parse(options);
-
-        console.log(options)
-
-        console.log(optionsArray)
        
         var avatar = ''
         if(request.file){ 
