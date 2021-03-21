@@ -461,8 +461,6 @@ export default class ItemsController {
         let itemsOptions = await db.select('items-options.*')
         .from('items-options')
         .where({item_id})
-        console.log(item_id)
-        console.log(itemsOptions)
         return response.status(200).json({itemsOptions});
 
     }
@@ -499,16 +497,11 @@ export default class ItemsController {
             options_label
         } = request.body;
 
-        console.log(item_id, options_label)
-
         try {
             const insertedItemOptions = await trx('items-options')
                 .delete()    
                 .where('item_id', item_id)
                 .andWhere('label', options_label)
-
-            console.log("deletou")
-        
             await trx.commit();
             return response.status(201).send();
         } catch (err) {
