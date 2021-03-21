@@ -8,7 +8,7 @@ module.exports = {
         database: "dfni1lddohhipq",
         port: 5432,
         host: "ec2-54-157-78-113.compute-1.amazonaws.com",
-        ssl: true
+        ssl: { rejectUnauthorized: false }
     }
         || 
     {
