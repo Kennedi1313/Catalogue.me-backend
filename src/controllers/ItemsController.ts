@@ -92,7 +92,9 @@ export default class ItemsController {
             items = items.where('items.category', category)
         if(price && price !== 'all')
             items = items.orderBy('items.price', price)
-
+        else    
+            items = items.orderBy('items.name', 'asc')
+            
         let total = db.count('items.id')
                                 .from('items')
                                     .where('items.shop_id', '=', shop_id)
