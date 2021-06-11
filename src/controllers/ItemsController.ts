@@ -80,13 +80,13 @@ export default class ItemsController {
         const limite = filters.limit as string;
         const salto = (parseInt(pagina) - 1) * parseInt(limite);
 
+
         let items = db.select(['items.*'])
             .from('items')
             .where('items.shop_id', '=', shop_id)
             .andWhere('items.name', 'ilike', '%' + name + '%')
             .join('shops', 'items.shop_id', '=', 'shops.id')
             .limit(parseInt(limite))
-            .where('items.ativo', true)
             .offset(salto)
         if(category && category !== 'all')
             items = items.where('items.category', category)
@@ -130,6 +130,7 @@ export default class ItemsController {
             categories = categories.filter(function(este, i) {
                 return categories.indexOf(este) === i;
             });
+
           
             return response.status(200).send(categories)
         }).catch(function (err) {
@@ -198,12 +199,9 @@ export default class ItemsController {
             price,
             info,
             category,
-            user_id,
-            options
+            user_id
         } = request.body;
 
-        const optionsArray = JSON.parse(options);
-       
         var avatar = ''
         if(request.file){ 
             // @ts-ignore
@@ -233,14 +231,6 @@ export default class ItemsController {
                 item_id: insertedItemsIds[0]
             }], "id");
 
-            const optionsFields = optionsArray.map( ({label}: { label: string}) => {
-                if(label !== '') {
-                    return { label: label, item_id: insertedItemsIds[0] } 
-                }
-            })
-
-            const insertedItemOptions = await trx('items-options').insert(optionsFields, "id");
-           
             await trx.commit();
             return response.status(201).send();
         } catch (err) {
@@ -263,7 +253,9 @@ export default class ItemsController {
             info,
             category,
             user_id
-        } = request.body;
+        } = request.body.params;
+
+        console.log(request.body)
 
         const shops = await trx('shops')
             .where('shops.user_id', '=', user_id)
@@ -306,7 +298,8 @@ export default class ItemsController {
             // @ts-ignore
             avatar = request.file.path ? request.file.path : request.file.location;
         }
-      
+
+
         if(avatar === '') {
             return response.status(400).json({
                 error: "Unexpected error while creating the avatar of a item.",
@@ -408,12 +401,12 @@ export default class ItemsController {
                 updatedItemsIds = await trx('items')
                     .update({ativo: false})
                     .where('items.id','=', item.id);
-               
+  
             }else {
                 updatedItemsIds = await trx('items')
                 .update({ativo: true})
                 .where('items.id','=', item.id);
-               
+     
             }
             
 

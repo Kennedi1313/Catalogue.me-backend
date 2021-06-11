@@ -2,14 +2,14 @@ import multer from 'multer'
 import aws from 'aws-sdk'
 import multerS3 from 'multer-s3'
 
-const storageTypes = {
-    local: multer.diskStorage({
-        destination: './public/uploads',
-        filename: (req, file, callback) =>{
-            callback(null, file.fieldname + '-' + file.originalname)
-        }
-    }),
-    s3: multerS3({
+aws.config.update({
+    secretAccessKey: 'l3OCpPiwG7lGKgUhlQGKt9efLHYD6YHaLaLErjVo',
+    accessKeyId: 'AKIASHXRPJMIGJ2H3HVX',
+    region: 'sa-east-1'
+});
+
+const uploads = multer({
+    storage: multerS3({
         s3: new aws.S3(),
         bucket: 'upload-catalogueme',
         contentType: multerS3.AUTO_CONTENT_TYPE,
@@ -19,10 +19,6 @@ const storageTypes = {
         }
     })
     
-}
-
-
-const uploads = multer({ storage: storageTypes.s3  })
-
+})
 
 export default uploads;

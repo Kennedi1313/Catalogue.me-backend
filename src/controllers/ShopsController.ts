@@ -33,7 +33,7 @@ export default class ShopsController {
         const filters = request.query;
         const shop_id = filters.shop_id as string
         const shop = await db('shops').where({id: shop_id}).select('shops.name', 'shops.whatsapp', 'shops.tag', 'shops.bio', 'shops.logo', 'shops.color', 'shops.color_text')
-        console.log(shop, shop_id)
+       
         return response.send(shop);
     }
 
@@ -115,7 +115,7 @@ export default class ShopsController {
     }
     async edit(request: Request, response: Response) {
         const trx = await db.transaction()
-        console.log(request.body)
+      
         const {
             shop_id,
             shop_name,
@@ -139,7 +139,7 @@ export default class ShopsController {
             return response.status(201).send()
     
         } catch (err) {
-            console.log(err)
+          
             await trx.rollback();
             return response.status(400).json({
                 error: "Unexpected error while creating a new user or a new shop.",
@@ -236,13 +236,12 @@ export default class ShopsController {
     
     async addCategory(request: Request, response: Response) {
         const trx = await db.transaction();
-        console.log(request.body)
+     
         const {
             category,
             shop_id
         } = request.body;
 
-        console.log(category, shop_id)
 
         try {
             
@@ -255,7 +254,7 @@ export default class ShopsController {
             return response.status(201).send();
         } catch (err) {
             await trx.rollback();
-            console.log(err)
+           
             return response.status(400).json({
                 error: "Unexpected error while creating the avatar of a item.",
                 err
@@ -270,7 +269,7 @@ export default class ShopsController {
             category,
             shop_id
         } = request.body;
-        console.log(category, shop_id)
+       
         try {
             
             await trx('shops-categories')
@@ -282,7 +281,7 @@ export default class ShopsController {
             return response.status(201).send();
         } catch (err) {
             await trx.rollback();
-            console.log(err)
+         
             return response.status(400).json({
                 error: "Unexpected error while creating the avatar of a item.",
                 err
@@ -293,6 +292,7 @@ export default class ShopsController {
     async findCategoryByShop(request: Request, response: Response){
         const filters = request.query;
         const shop_id = filters.shop_id as string
+      
         const categories = await db('shops-categories').where({shop_id}).select('shops-categories.category')
         return response.send(categories);
     }
