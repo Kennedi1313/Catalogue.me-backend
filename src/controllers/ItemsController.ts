@@ -140,8 +140,7 @@ export default class ItemsController {
             name,
             price,
             info,
-            category,
-            user_id
+            shop_id
         } = request.body;
 
         var avatar = ''
@@ -149,13 +148,7 @@ export default class ItemsController {
             // @ts-ignore
             avatar = request.file.path ? request.file.path : request.file.location;
         }
-     
-        const shops = await trx('shops')
-            .where('shops.user_id', '=', user_id)
-            .select(['shops.id'])
         
-        const shop_id = shops[0].id
-
         try {
 
             const insertedItemsIds = await trx('items').insert([{
@@ -163,14 +156,8 @@ export default class ItemsController {
                 price, 
                 info,
                 ativo: true,
-                category,
                 avatar,
                 shop_id: shop_id
-            }], "id");
-
-            const insertedItemsAvatarIds = await trx('items-avatar').insert([{
-                avatar,
-                item_id: insertedItemsIds[0]
             }], "id");
 
             await trx.commit();
