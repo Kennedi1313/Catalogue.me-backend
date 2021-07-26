@@ -29,79 +29,22 @@ export default class ItemsController {
 
         return response.status(200).send();
     }
-    async index(request: Request, response: Response) {
-        const filters = request.query;
-        const shop_id = filters.shop_id as string;
-        const name = !!filters.name ? filters.name as string : '';
-        const category = filters.category as string;
-        const price = filters.price as string;
-        const pagina = filters.page as string;
-        const limite = filters.limit as string;
-        const salto = (parseInt(pagina) - 1) * parseInt(limite);
-
-        let items = db.select(['items.*', 'items.category'])
-            .from('items')
-            .where('items.shop_id', '=', shop_id)
-            .andWhere('items.name', 'ilike', '%' + name + '%')
-            .join('shops', 'items.shop_id', '=', 'shops.id')
-            .limit(parseInt(limite))
-            .offset(salto)
-            .orderBy('items.name', 'asc')
-        if(category && category !== 'all')
-            items = items.where('items.category', category)
-        if(price && price !== 'all')
-            items = items.orderBy('items.price', price)
-
-        var categories: string[] = []
-        items.then(function (result) {
-            result.forEach(element => {
-                categories.push(element.category);
-            })
-            categories = categories.filter(function(este, i) {
-                return categories.indexOf(este) === i;
-            });
-            
-            response.status(200);
-  
-            return response.json({items: result, categories})
-        }).catch(function (err) {
-            return response.status(400).json(err);
-        });
-    }
 
     async findByShop(request: Request, response: Response){
         const filters = request.query;
         const shop_id = filters.shop_id as string;
-        const name = !!filters.name ? filters.name as string : '';
-        const category = filters.category as string;
-        const price = filters.price as string;
-        const pagina = filters.page as string;
-        const limite = filters.limit as string;
-        const salto = (parseInt(pagina) - 1) * parseInt(limite);
-
 
         let items = db.select(['items.*'])
             .from('items')
             .where('items.shop_id', '=', shop_id)
-            .andWhere('items.name', 'ilike', '%' + name + '%')
             .join('shops', 'items.shop_id', '=', 'shops.id')
-            .limit(parseInt(limite))
-            .offset(salto)
-        if(category && category !== 'all')
-            items = items.where('items.category', category)
-        if(price && price !== 'all')
-            items = items.orderBy('items.price', price)
-        else    
-            items = items.orderBy('items.name', 'asc')
+            .orderBy('items.name', 'asc')
             
         let total = db.count('items.id')
-                                .from('items')
-                                    .where('items.shop_id', '=', shop_id)
-                                    .andWhere('items.name', 'ilike', '%' + name + '%')
-                                    .andWhere('ativo', '=', true)
-                                    .join('shops', 'items.shop_id', '=', 'shops.id')
-                                if(category && category !== 'all')
-                                    total = total.where('items.category', category)
+            .from('items')
+            .where('items.shop_id', '=', shop_id)
+            .join('shops', 'items.shop_id', '=', 'shops.id')
+                            
 
         var totalItens = (await total)[0]['count']
         items.then(function (result) {            

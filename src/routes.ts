@@ -19,7 +19,6 @@ routes.post('/itemsDelete', itemsController.delete);
 routes.post('/itemsInative', itemsController.inativar);
 routes.post('/itemsAtive', itemsController.ativar)
 routes.get('/items', itemsController.findByShop);
-routes.get('/all-items', itemsController.index);
 routes.get('/itemsIndisponiveis', itemsController.findInativosByShop)
 routes.get('/itembyid', itemsController.findById);
 routes.get('/itemavatarbyid', itemsController.findAvatarById);
