@@ -17,14 +17,11 @@ routes.post('/items', uploads.single('avatar'), itemsController.create);
 routes.post('/items-edit', itemsController.edit);
 routes.post('/itemsDelete', itemsController.delete);
 routes.post('/itemsInative', itemsController.inativar);
-routes.post('/itemsAtive', itemsController.ativar)
 routes.get('/items', itemsController.findByShop);
 routes.get('/itemsIndisponiveis', itemsController.findInativosByShop)
 routes.get('/itembyid', itemsController.findById);
 routes.get('/itemavatarbyid', itemsController.findAvatarById);
 routes.post('/avatar', uploads.single('avatar'), itemsController.addAvatar);
-routes.post('/avatar-delete', itemsController.deleteAvatar);
-routes.post('/avatar-change', itemsController.changeAvatar);
 routes.get('/categories', itemsController.findCategoriesByShop);
 
 routes.post('/login', shopsController.login);

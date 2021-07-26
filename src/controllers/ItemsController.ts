@@ -236,32 +236,6 @@ export default class ItemsController {
         }
         try {
             
-            const insertedItemsAvatarIds = await trx('items-avatar').insert({
-                avatar,
-                item_id
-            });
-
-            await trx.commit();
-            return response.status(201).send();
-        } catch (err) {
-            await trx.rollback();
-            return response.status(400).json({
-                error: "Unexpected error while creating the avatar of a item.",
-                err
-            })
-        }
-    }
-
-    async changeAvatar(request: Request, response: Response) {
-        const trx = await db.transaction();
-    
-        const {
-            avatar,
-            item_id
-        } = request.body;
-
-        try {
-            
             await trx('items').where('id', item_id).update({
                 avatar,
             });
@@ -276,45 +250,7 @@ export default class ItemsController {
             })
         }
     }
-
-    async deleteAvatar(request: Request, response: Response) {
-        const trx = await db.transaction();
     
-        const {
-            id,
-            avatar
-        } = request.body;
-
-        try {
-
-            const s3 = new aws.S3();
-            const url_s3 = "https://upload-catalogueme.s3.amazonaws.com/";
-            const url_s32 = "https://upload-catalogueme.s3.sa-east-1.amazonaws.com/"
-
-            let key
-            if(avatar.substring(0, url_s3.length) === url_s3)
-                key = avatar.substring(url_s3.length, avatar.length);
-            if(avatar.substring(0, url_s32.length) === url_s32)
-                key = avatar.substring(url_s32.length, avatar.length);
-
-            s3.deleteObject({
-                Bucket: 'upload-catalogueme',
-                Key: key,
-            });
-           
-            await trx('items-avatar').where('id', id).delete();
-
-            await trx.commit();
-            return response.status(201).send();
-        } catch (err) {
-            await trx.rollback();
-            return response.status(400).json({
-                error: "Unexpected error while creating the avatar of a item.",
-                err
-            })
-        }
-    }
-
     async inativar(request: Request, response: Response) {
         const trx = await db.transaction();
     
@@ -343,30 +279,6 @@ export default class ItemsController {
             return response.status(201).send();
         } catch (err) {
     
-            await trx.rollback();
-            return response.status(400).json({
-                error: "Unexpected error while updating a item.",
-                err
-            })
-        }
-    }
-
-    async ativar(request: Request, response: Response) {
-        const trx = await db.transaction();
-    
-        const {
-            item,
-        } = request.body;
-
-        try {
-
-            const updatedItemsIds = await trx('items')
-                .update({ativo: true})
-                .where('items.id','=', item.id);
-
-            await trx.commit();
-            return response.status(201).send();
-        } catch (err) {
             await trx.rollback();
             return response.status(400).json({
                 error: "Unexpected error while updating a item.",
