@@ -32,7 +32,7 @@ export default class ShopsController {
     async findByTag(request: Request, response: Response){
         const filters = request.query;
         const shop_tag = filters.shop_tag as string
-        const shop = await db.raw('select * from shops where REPLACE(name, \' \', \'\') = ? ', [shop_tag]);
+        const shop = await db('shops').whereRaw(`REPLACE(name, ' ', '') = ? `, [shop_tag]).select('*');
         return response.send(shop);
     }
 
