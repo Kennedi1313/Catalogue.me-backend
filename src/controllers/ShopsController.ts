@@ -127,6 +127,8 @@ export default class ShopsController {
             if(shop.length < 1) {
                 return response.status(401).send({ error: "Falha na autenticação. "})
             }
+
+            console.log(shop[0])
             const jwt_key = "segredo";
             const token = jwt.sign({
                     whatsapp: shop[0].whatsapp,
