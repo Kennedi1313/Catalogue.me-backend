@@ -4,27 +4,8 @@ import aws from 'aws-sdk';
 
 export default class ItemsController {
     async delete(request: Request, response: Response) {
-        const { item_id, avatars } = request.body
-        const s3 = new aws.S3();
-        const url_s3 = "https://upload-catalogueme.s3.amazonaws.com/";
-        const url_s32 = "https://upload-catalogueme.s3.sa-east-1.amazonaws.com/"
-
-        // @ts-ignore
-        avatars.forEach(({avatar}) => {
-
-            let key
-            if(avatar.substring(0, url_s3.length) === url_s3)
-                key = avatar.substring(url_s3.length, avatar.length);
-            if(avatar.substring(0, url_s32.length) === url_s32)
-                key = avatar.substring(url_s32.length, avatar.length);
-
-            const deletado = s3.deleteObject({
-                Bucket: 'upload-catalogueme',
-                Key: key,
-            });
-
-        });
-        
+        const { item_id } = request.body
+       
         const itemdeletado = await db('items').delete().where('items.id', item_id)
 
         return response.status(200).send();

@@ -8,7 +8,7 @@ const shopsController = new ShopsController();
 const itemsController = new ItemsController();
 
 routes.post('/shops', shopsController.create);
-routes.post('/shops-edit', uploads.single('shop_avatar'), shopsController.edit);
+routes.post('/shops-edit', shopsController.edit);
 routes.get('/shops', shopsController.index);
 routes.get('/shopbyid', shopsController.findById);
 routes.get('/shopbytag', shopsController.findByTag);
