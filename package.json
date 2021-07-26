@@ -9,9 +9,6 @@
   },
   "scripts": {
     "start": "ts-node --transpile-only src/server.ts",
-    "knex:migrate": "knex --knexfile knexfile.ts migrate:latest",
-    "knex:migrate:rollback": "knex --knexfile knexfile.ts migrate:rollback",
-    "heroku-postbuild": "knex --knexfile knexfile.ts migrate:latest",
     "build": "tsc"
   },
   "dependencies": {
