@@ -7,7 +7,7 @@ const routes = express.Router();
 const shopsController = new ShopsController();
 const itemsController = new ItemsController();
 
-routes.post('/shops', uploads.single('shop_avatar'), shopsController.create);
+routes.post('/shops', shopsController.create);
 routes.post('/shops-edit', uploads.single('shop_avatar'), shopsController.edit);
 routes.get('/shops', shopsController.index);
 routes.get('/shopbyid', shopsController.findById);

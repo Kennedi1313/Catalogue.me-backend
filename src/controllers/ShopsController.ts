@@ -123,7 +123,6 @@ export default class ShopsController {
             const shop = await trx('shops')
                 .where('shops.whatsapp', '=', whatsapp)
                 .andWhere('shops.passwd', '=', user_passwd_decrypted)
-                .join('shops', 'shops.user_id' , '=', 'users.id')
                 .select('shops.*')
             if(shop.length < 1) {
                 return response.status(401).send({ error: "Falha na autenticação. "})
