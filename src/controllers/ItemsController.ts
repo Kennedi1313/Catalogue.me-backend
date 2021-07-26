@@ -57,63 +57,6 @@ export default class ItemsController {
         });
     }
 
-    async findCategoriesByShop(request: Request, response: Response) {
-        const filters = request.query;
-        const shop_id = filters.shop_id as string;
-        let query = db.select('items.category').from('items').where('items.shop_id', '=', shop_id).andWhere('items.ativo', '=', true)
-        var categories: string[] = []
-        
-        query.then(function (result) {
-            result.forEach(element => {
-                
-                categories.push(element.category);
-            });
-            
-            categories = categories.filter(function(este, i) {
-                return categories.indexOf(este) === i;
-            });
-
-          
-            return response.status(200).send(categories)
-        }).catch(function (err) {
-            return response.status(400).json(err);
-        });
-        
-    }
-
-    async findInativosByShop(request: Request, response: Response){
-        const filters = request.query;
-        const shop_id = filters.shop_id as string;
-        const name = !!filters.name ? filters.name as string : '';
-        const category = filters.category as string;
-        const price = filters.price as string;
-
-        let items = db.select(['items.*', 'items.category', db.raw('(select "items-avatar".avatar from "items-avatar" where items.id = "items-avatar".item_id limit 1 )')])
-            .from('items')
-            .where('items.shop_id', '=', shop_id)
-            .andWhere('items.name', 'ilike', '%' + name + '%')
-            .andWhere('ativo', '=', false)
-            .join('shops', 'items.shop_id', '=', 'shops.id')
-            
-        if(category && category !== 'all')
-            items = items.where('items.category', category)
-        if(price)
-            items = items.orderBy('items.price', price)
-
-        var categories: string[] = []
-        items.then(function (result) {
-            result.forEach(element => {
-                categories.push(element.category)
-            })
-            categories = categories.filter(function(este, i) {
-                return categories.indexOf(este) === i;
-            });
-            return response.status(200).json({items: result, categories})
-        }).catch(function (err) {
-            return response.status(400).json(err);
-        });
-    }
-
     async findById(request: Request, response: Response){
         const filters = request.query;
         const item_id = filters.item_id as string
@@ -121,15 +64,6 @@ export default class ItemsController {
         .from('items')
         .where({id: item_id})
         return response.send(items);
-    }
-
-    async findAvatarById(request: Request, response: Response){
-        const filters = request.query;
-        const item_id = filters.item_id as string
-        let itemsAvatar = await db.select('items-avatar.*')
-        .from('items-avatar')
-        .where({item_id})
-        return response.status(200).json({itemsAvatar});
     }
 
     async create(request: Request, response: Response) {
@@ -179,18 +113,8 @@ export default class ItemsController {
             item_id,
             name,
             price,
-            info,
-            category,
-            user_id
+            info
         } = request.body.params;
-
-        console.log(request.body)
-
-        const shops = await trx('shops')
-            .where('shops.user_id', '=', user_id)
-            .select(['shops.id'])
-        
-        const shop_id = shops[0].id
 
         try {
 
@@ -198,9 +122,6 @@ export default class ItemsController {
                 name,
                 price, 
                 info,
-                ativo: true,
-                category,
-                shop_id: shop_id
             });
 
             await trx.commit();
