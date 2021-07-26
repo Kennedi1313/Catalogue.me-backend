@@ -1,6 +1,5 @@
 import {Request, Response} from 'express';
 import db from '../database/index';
-import convertHourToMinutes from '../utils/convertHoursToMinutes';
 import aws from 'aws-sdk';
 
 export default class ItemsController {
@@ -446,61 +445,4 @@ export default class ItemsController {
         }
     }
 
-    async findOptionsById(request: Request, response: Response) {
-        const filters = request.query;
-        const item_id = filters.item_id as string
-        let itemsOptions = await db.select('items-options.*')
-        .from('items-options')
-        .where({item_id})
-        return response.status(200).json({itemsOptions});
-
-    }
-    
-    async addItemOption(request: Request, response: Response) {
-        const trx = await db.transaction();
-    
-        const {
-            item_id,
-            options_label
-        } = request.body;
-
-        const optionsFields =  { label: options_label, item_id: item_id } 
-
-        try {
-            const insertedItemOptions = await trx('items-options').insert(optionsFields, "id");
-        
-            await trx.commit();
-            return response.status(201).send();
-        } catch (err) {
-            await trx.rollback();
-            return response.status(400).json({
-                error: "Unexpected error while creating a new item.",
-                err
-            })
-        }
-    }
-
-    async deleteItemOption(request: Request, response: Response) {
-        const trx = await db.transaction();
-    
-        const {
-            item_id,
-            options_label
-        } = request.body;
-
-        try {
-            const insertedItemOptions = await trx('items-options')
-                .delete()    
-                .where('item_id', item_id)
-                .andWhere('label', options_label)
-            await trx.commit();
-            return response.status(201).send();
-        } catch (err) {
-            await trx.rollback();
-            return response.status(400).json({
-                error: "Unexpected error while creating a new item.",
-                err
-            })
-        }
-    }
 }

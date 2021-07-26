@@ -9,14 +9,4 @@ module.exports = {
         port: 5432,
         host: "ec2-54-157-78-113.compute-1.amazonaws.com",
     }
-        || 
-    {
-        database: "catalogueme",
-        user: "postgres",
-        password: "admin"
-    },
-    migrations: {
-        tableName: "knex_migrations",
-        directory: `${__dirname}/src/database/migrations`
-    }
 };
